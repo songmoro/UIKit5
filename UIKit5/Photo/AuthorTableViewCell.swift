@@ -9,8 +9,6 @@ import UIKit
 import SnapKit
 
 class AuthorTableViewCell: BaseTableViewCell {
- 
-    static let identifier = "AuthorTableViewCell"
     
     let authorImageView = UIImageView()
     let authorLabel = UILabel()

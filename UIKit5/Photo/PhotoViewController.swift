@@ -18,7 +18,8 @@ class PhotoViewController: UIViewController {
         tableView.rowHeight = 80
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(PhotoTableViewCell.self, forCellReuseIdentifier: PhotoTableViewCell.identifier)
+        tableView.register(PhotoTableViewCell.self)
+        
         return tableView
     }()
     
@@ -28,7 +29,8 @@ class PhotoViewController: UIViewController {
         tableView.rowHeight = 80
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(PhotoTableViewCell.self, forCellReuseIdentifier: PhotoTableViewCell.identifier)
+        tableView.register(AuthorTableViewCell.self)
+        
         return tableView
     }()
      
@@ -59,19 +61,20 @@ extension PhotoViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        let cell = tableView.dequeueReusableCell(withIdentifier: PhotoTableViewCell.identifier, for: indexPath) as! PhotoTableViewCell
-        
         if tableView == authorTableView {
+            let cell = tableView.dequeueReusableCell(AuthorTableViewCell.self, for: indexPath)
             let row = secondList[indexPath.row]
-            cell.titleLabel.text = row
+            cell.authorLabel.text = row
+            
+            return cell
         }
         else {
+            let cell = tableView.dequeueReusableCell(PhotoTableViewCell.self, for: indexPath)
             let row = firstList[indexPath.row]
             cell.titleLabel.text = row
+            
+            return cell
         }
-        
-        return cell
     }
      
 }
