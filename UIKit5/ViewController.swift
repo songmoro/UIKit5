@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         configure()
-        qos()
+        dispathGroup1()
     }
     
     func configure() {
@@ -135,6 +135,48 @@ class ViewController: UIViewController {
         print(#function, "end")
     }
     
+    func dispathGroup1() {
+        print(#function, "start")
+        
+        let group = DispatchGroup()
+        
+        print(#function, "1")
+        DispatchQueue.global().async(group: group) {
+            for i in 1...50 {
+                print(i, terminator: " ")
+            }
+        }
+        
+        print(#function, "2")
+        DispatchQueue.global().async(group: group) {
+            for i in 51...100 {
+                print(i, terminator: " ")
+            }
+        }
+        
+        print(#function, "3")
+        DispatchQueue.global().async(group: group) {
+            for i in 101...150 {
+                print(i, terminator: " ")
+            }
+        }
+        
+        print(#function, "4")
+        DispatchQueue.global().async(group: group) {
+            for i in 151...200 {
+                print(i, terminator: " ")
+            }
+        }
+        
+        group.notify(queue: .main) {        
+            print(#function, "end")
+        }
+    }
+    
+    func dispathGroup2() {
+        
+    }
+    
     @objc func buttonClicked() {
         print(#function)
         print("1")
@@ -156,3 +198,6 @@ class ViewController: UIViewController {
     }
 }
 
+#Preview {
+    ViewController()
+}

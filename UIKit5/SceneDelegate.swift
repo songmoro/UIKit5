@@ -20,8 +20,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = UIWindow(windowScene: windowScene)
         
         let tabBarController = UITabBarController()
-        
-        tabBarController.setViewControllers([UINavigationController(rootViewController: ViewController())], animated: true)
+        tabBarController.setViewControllers([UINavigationController(rootViewController: PhotoViewController())], animated: true)
         
         window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()

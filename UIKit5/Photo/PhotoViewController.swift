@@ -6,18 +6,20 @@
 //
 
 import UIKit
+import Alamofire
 
 class PhotoViewController: UIViewController {
     
-    let firstList = ["고래밥", "칙촉", "카스타드"]
-    let secondList = ["아이폰", "아이패드", "애플워치", "맥북"]
-
+    var firstList = [Photo]()
+    var secondList = [Photo]()
+    
     lazy var tableView = {
         let tableView = UITableView()
         tableView.backgroundColor = .orange
         tableView.rowHeight = 80
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.allowsSelection = false
         tableView.register(PhotoTableViewCell.self)
         
         return tableView
@@ -33,11 +35,11 @@ class PhotoViewController: UIViewController {
         
         return tableView
     }()
-     
+    
     let button = {
-       let view = UIButton()
+        let view = UIButton()
         view.setTitle("통신 시작하기", for: .normal)
-        view.backgroundColor = .yellow
+        view.backgroundColor = .systemBrown
         return view
     }()
     
@@ -64,19 +66,29 @@ extension PhotoViewController: UITableViewDelegate, UITableViewDataSource {
         if tableView == authorTableView {
             let cell = tableView.dequeueReusableCell(AuthorTableViewCell.self, for: indexPath)
             let row = secondList[indexPath.row]
-            cell.authorLabel.text = row
+            cell.authorLabel.text = row.author
             
             return cell
         }
         else {
             let cell = tableView.dequeueReusableCell(PhotoTableViewCell.self, for: indexPath)
             let row = firstList[indexPath.row]
-            cell.titleLabel.text = row
+            cell.titleLabel.text = row.author
             
             return cell
         }
     }
-     
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let vc = PhotoDetailViewController()
+        vc.textFieldHander = {
+            self.button.setTitle($0, for: .normal)
+        }
+        let nav = UINavigationController(rootViewController: vc)
+        
+//        navigationController?.pushViewController(vc, animated: true)
+        present(nav, animated: true)
+    }
 }
 
 extension PhotoViewController {
@@ -88,7 +100,7 @@ extension PhotoViewController {
     }
     
     func configureLayout() {
-         
+        
         button.snp.makeConstraints { make in
             make.horizontalEdges.top.equalTo(view.safeAreaLayoutGuide).inset(20)
             make.height.equalTo(44)
@@ -110,12 +122,46 @@ extension PhotoViewController {
     func configureView() {
         navigationItem.title = "통신 테스트"
         view.backgroundColor = .white
+        button.addTarget(self, action: #selector(buttonClicked), for: .touchUpInside)
+    }
+}
+
+extension PhotoViewController {
+    @objc func buttonClicked(_ sender: UIButton) {
+        request()
     }
     
+    func request() {
+        let group = DispatchGroup()
+        
+        self.call(group: group, url: "https://picsum.photos/v2/list?page=1") { value in
+            self.firstList.append(contentsOf: value)
+        }
+        
+        self.call(group: group, url: "https://picsum.photos/v2/list?page=3") { value in
+            self.secondList.append(contentsOf: value)
+        }
+        
+        group.notify(queue: .main) {
+            self.tableView.reloadData()
+            self.authorTableView.reloadData()
+        }
+    }
+    
+    func call(group: DispatchGroup, url: String, completionHandler: @escaping ([Photo]) -> ()) {
+        group.enter()
+        AF.request(URLRequest(url: URL(string: url)!))
+            .validate(statusCode: 200..<300)
+            .responseDecodable(of: [Photo].self) {
+                defer { group.leave() }
+                guard let value = try? $0.result.get() else { return }
+                completionHandler(value)
+            }
+    }
 }
 
 #if DEBUG
 #Preview {
-    PhotoViewController()
+    UINavigationController(rootViewController: PhotoViewController())
 }
 #endif
